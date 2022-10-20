@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-"""Script to get todos for a user from API"""
+"""Script to get data API"""
 
 import requests
 import sys
