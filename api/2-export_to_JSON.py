@@ -1,36 +1,34 @@
 #!/usr/bin/python3
-"""Script that gets user data (Todo list) from API
-and then export the result to csv file. """
-
+""" Call API and stores in a JSON file """
+import csv
 import json
 import requests
-import sys
-
-
-def main():
-    """main function"""
-    user_id = int(sys.argv[1])
-    todo_url = 'https://jsonplaceholder.typicode.com/todos'
-    user_url = 'https://jsonplaceholder.typicode.com/users/{}'.format(user_id)
-
-    response = requests.get(todo_url)
-    user_name = requests.get(user_url).json().get('username')
-    user_data = []
-    output = {user_id: user_data}
-
-    for todo in response.json():
-        if todo.get('userId') == user_id:
-            user_data.append(
-                {
-                    "task": todo.get('title'),
-                    "completed": todo.get('completed'),
-                    "username": user_name,
-                })
-    print(output)
-    file_name = "{}.json".format(user_id)
-    with open(file_name, 'w') as file:
-        json.dump(output, file)
+from sys import argv
 
 
 if __name__ == '__main__':
-    main()
+    userId = argv[1]
+    url_todo = 'https://jsonplaceholder.typicode.com/todos/'
+    url_user = 'https://jsonplaceholder.typicode.com/users/'
+    todo = requests.get(url_todo, params={'userId': userId})
+    user = requests.get(url_user, params={'id': userId})
+
+    todo_dict_list = todo.json()
+    user_dict_list = user.json()
+    task_list = []
+    user_tasks = {}
+    employee = user_dict_list[0].get('username')
+
+    with open("{}.json".format(userId), "w+") as jsonfile:
+        for task in todo_dict_list:
+            status = task.get('completed')
+            title = task.get('title')
+            task_dict = {}
+            task_dict['task'] = title
+            task_dict['completed'] = status
+            task_dict['username'] = employee
+            task_list.append(task_dict)
+        user_tasks[userId] = task_list
+
+        data = json.dumps(user_tasks)
+        jsonfile.write(data)
